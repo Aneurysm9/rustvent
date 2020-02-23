@@ -7,7 +7,15 @@ rust:
   - beta
   - nightly
   - 1.37.0
-cache: cargo
+cache:
+  cargo: true
+  directories:
+    - aoc/target
+
+jobs:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
 
 env: # required for allow_failures
 matrix:
@@ -33,9 +41,6 @@ matrix:
       script:
         - |
           cargo build --verbose -p aoc -p rustvent &&
-          cargo test --verbose -p aoc -p rustvent
-      after_success:
-        - |
           cd aoc &&
           cargo coverage --verbose -p aoc &&
           cd .. &&
