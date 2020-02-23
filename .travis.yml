@@ -38,6 +38,7 @@ matrix:
               - |
                   cargo build --verbose -p aoc -p rustvent &&
                   cd aoc &&
+                  cargo build --verbose -p aoc &&
                   cargo coverage --verbose -p aoc &&
                   cd .. &&
                   cargo coverage --verbose -p aoc -p rustvent &&
