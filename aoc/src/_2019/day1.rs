@@ -40,10 +40,34 @@ mod tests {
 
     #[test]
     fn mass_calc() {
-        assert_eq!(fuel(12), 2);
-        assert_eq!(fuel(14), 2);
-        assert_eq!(fuel(1969), 654);
-        assert_eq!(fuel(100756), 33583);
+        assert_eq!(
+            Runner {
+                input: "12".to_string()
+            }
+            .run_a(),
+            "2".to_string()
+        );
+        assert_eq!(
+            Runner {
+                input: "14".to_string()
+            }
+            .run_a(),
+            "2".to_string()
+        );
+        assert_eq!(
+            Runner {
+                input: "1969".to_string()
+            }
+            .run_a(),
+            "654".to_string()
+        );
+        assert_eq!(
+            Runner {
+                input: "100756".to_string()
+            }
+            .run_a(),
+            "33583".to_string()
+        );
     }
 
     #[test]
