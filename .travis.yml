@@ -9,9 +9,11 @@ rust:
   - 1.37.0
 cache: cargo
 
+env: # required for allow_failures
 matrix:
   fast_finish: true
   allow_failures:
+    - env: NAME='cargo-travis'
   include:
     - rust: stable
       env: NAME='linting'
