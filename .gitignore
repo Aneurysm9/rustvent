@@ -1,4 +1,6 @@
 betatester_kit
-aoc/target
-target
+/aoc/target
+/aoc/Cargo.lock
+/target/
 .vscode
+**/*.rs.bk
