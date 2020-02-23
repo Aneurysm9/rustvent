@@ -8,3 +8,8 @@ jobs:
     - rust: nightly
   fast_finish: true
 cache: cargo
+script:
+  - cargo build --verbose -p aoc
+  - cargo test --verbose -p aoc
+  - cargo build --verbose
+  - cargo test --verbose
