@@ -1,15 +1,49 @@
 language: rust
+os:
+  - linux
+  - osx
 rust:
   - stable
   - beta
   - nightly
-jobs:
-  allow_failures:
-    - rust: nightly
-  fast_finish: true
+  - 1.0.0
 cache: cargo
-script:
-  - cargo build --verbose -p aoc
-  - cargo test --verbose -p aoc
-  - cargo build --verbose
-  - cargo test --verbose
+
+matrix:
+  fast_finish: true
+  allow_failures:
+  include:
+    - rust: stable
+      env: NAME='linting'
+      before_script:
+        - rustup component add rustfmt-preview
+        - rustup component add clippy-preview
+      script:
+        - cargo fmt --all -- --check
+        - cargo clippy
+
+    - env: NAME='cargo-travis'
+      sudo: required # travis-ci/travis-ci#9061
+      before_script:
+        - cargo install cargo-update || echo "cargo-update already installed"
+        - cargo install cargo-travis || echo "cargo-travis already installed"
+        - cargo install-update -a
+      script:
+        - |
+          cargo build --verbose &&
+          cargo coverage --verbose -p aoc -p rustvent &&
+          bash <(curl -s https://codecov.io/bash) -s target/kcov
+      addons: # required for kcov
+        apt:
+          packages:
+            - libcurl4-openssl-dev
+            - libelf-dev
+            - libdw-dev
+            - binutils-dev
+            - cmake
+
+script: |
+  export RUST_BACKTRACE=1 &&
+  cargo build --verbose -p aoc -p rustvent &&
+  cargo test --verbose -p aoc -p rustvent &&
+  cargo doc --no-deps --verbose -p aoc -p rustvent

@@ -1,10 +1,12 @@
 # rustvent
 
+[![Build Status](https://travis-ci.org/Aneurysm9/rustvent.svg?branch=master)](https://travis-ci.org/Aneurysm9/rustvent) [![codecov](https://codecov.io/gh/Aneurysm9/rustvent/branch/master/graph/badge.svg)](https://codecov.io/gh/Aneurysm9/rustvent) ![GitHub](https://img.shields.io/github/license/Aneurysm9/rustvent)
+
 Advent of Code solutions in Rust
 
 ## Usage
 
-```
+```text
 rustvent 0.1.0
 Advent of Rust.
 
