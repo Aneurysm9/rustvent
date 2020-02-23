@@ -34,8 +34,9 @@ matrix:
         - |
           cargo build --verbose -p aoc -p rustvent &&
           cargo test --verbose -p aoc -p rustvent &&
-          cargo coverage --verbose -p aoc -p rustvent &&
-          bash <(curl -s https://codecov.io/bash) -s target/kcov
+          cargo coverage --verbose -p aoc -p rustvent
+      after_success:
+        - bash <(curl -s https://codecov.io/bash) -s target/kcov
       addons: # required for kcov
         apt:
           packages:
@@ -43,6 +44,7 @@ matrix:
             - libelf-dev
             - libdw-dev
             - binutils-dev
+            - libiberty-dev
             - cmake
 
 script: |
