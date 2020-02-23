@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 aoc = { version = "0.1.0", path = "aoc" }
+structopt = "0.3"

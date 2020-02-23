@@ -7,13 +7,7 @@ pub trait Solution {
 
 pub fn new(year: &str, day: &str, input: String) -> Option<impl Solution> {
     match year {
-        "2019" => {
-            if let Some(s) = _2019::new(day, input) {
-                Some(s)
-            } else {
-                None
-            }
-        }
+        "2019" => _2019::new(day, input),
         _ => None,
     }
 }
