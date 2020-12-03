@@ -3,7 +3,6 @@ use std::fs;
 use structopt::StructOpt;
 
 use aoc;
-use aoc::Solution;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "rustvent", about = "Advent of Rust.")]
