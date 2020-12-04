@@ -8,7 +8,7 @@ use aoc;
 #[structopt(name = "rustvent", about = "Advent of Rust.")]
 struct Opt {
     // Year to run
-    #[structopt(short, long, default_value = "2019")]
+    #[structopt(short, long, default_value = "2020")]
     year: String,
 
     // Day to run
