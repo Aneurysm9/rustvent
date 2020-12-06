@@ -20,19 +20,19 @@ impl crate::Solution for Runner {
     }
 }
 
-fn check_slope(map: &Vec<Vec<char>>, rise: usize, run: usize) -> usize {
+fn check_slope(map: &[Vec<char>], rise: usize, run: usize) -> usize {
     let mut res = 0;
     let mut x = 0;
     let mut y = 0;
     let width = map[0].len();
     while y < map.len() {
         if map[y][x] == '#' {
-            res = res + 1
+            res += 1;
         }
         x = (x + run) % width;
-        y = y + rise;
+        y += rise;
     }
-    return res;
+    res
 }
 
 #[cfg(test)]

@@ -15,7 +15,7 @@ impl crate::Solution for Runner {
             let restr: char = vals[1].chars().next().unwrap();
             let count: usize = vals[2].trim().chars().filter(|c| c == &restr).count();
             if count >= range[0] && count <= range[1] {
-                res = res + 1
+                res += 1;
             }
         }
         res.to_string()
@@ -33,7 +33,7 @@ impl crate::Solution for Runner {
             let restr: char = vals[1].chars().next().unwrap();
             let chars: Vec<char> = vals[2].trim().chars().collect();
             if (chars[range[0] - 1] == restr) ^ (chars[range[1] - 1] == restr) {
-                res = res + 1
+                res += 1;
             }
         }
         res.to_string()

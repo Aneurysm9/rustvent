@@ -29,15 +29,17 @@ impl crate::Solution for Runner {
     }
 }
 
+#[allow(clippy::ptr_arg)]
 fn has_fields(passport: &Vec<&str>) -> bool {
-    if passport.len() == 8 {
-        return true;
-    } else if passport.len() == 7 && passport.iter().filter(|s| s.contains("cid:")).count() == 0 {
+    if passport.len() == 8
+        || passport.len() == 7 && passport.iter().filter(|s| s.contains("cid:")).count() == 0
+    {
         return true;
     }
-    return false;
+    false
 }
 
+#[allow(clippy::ptr_arg)]
 fn validate(passport: &Vec<&str>) -> bool {
     lazy_static! {
         static ref HCL_RE: Regex = Regex::new(r"^\#[\da-f]{6}$").unwrap();
@@ -46,7 +48,7 @@ fn validate(passport: &Vec<&str>) -> bool {
         static ref PID_RE: Regex = Regex::new(r"^\d{9}$").unwrap();
     }
     for field in passport.iter() {
-        let mut i = field.split(":");
+        let mut i = field.split(':');
         let key = i.next().unwrap();
         let val = i.next().unwrap();
         match key {
@@ -109,5 +111,5 @@ fn validate(passport: &Vec<&str>) -> bool {
             _ => return false,
         }
     }
-    return true;
+    true
 }

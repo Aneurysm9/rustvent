@@ -2,8 +2,6 @@ use std::fs;
 
 use structopt::StructOpt;
 
-use aoc;
-
 #[derive(Debug, StructOpt)]
 #[structopt(name = "rustvent", about = "Advent of Rust.")]
 struct Opt {

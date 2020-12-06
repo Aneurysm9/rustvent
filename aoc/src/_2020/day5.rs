@@ -6,30 +6,29 @@ pub struct Runner {
 
 impl crate::Solution for Runner {
     fn run_a(&self) -> String {
-        return self
-            .input
-            .split("\n")
-            .filter(|v| v.len() > 0)
+        self.input
+            .split('\n')
+            .filter(|v| !v.is_empty())
             .map(|v| to_int(v))
             .fold(std::isize::MIN, |a, b| a.max(b))
-            .to_string();
+            .to_string()
     }
 
     fn run_b(&self) -> String {
         let mut prev = 0;
         for val in sorted(
             self.input
-                .split("\n")
-                .filter(|v| v.len() > 0)
+                .split('\n')
+                .filter(|v| !v.is_empty())
                 .map(|v| to_int(v)),
         ) {
             if prev != 0 && prev + 1 != val {
-                prev = prev + 1;
+                prev += 1;
                 break;
             }
             prev = val;
         }
-        return prev.to_string();
+        prev.to_string()
     }
 }
 
