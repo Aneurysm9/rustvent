@@ -13,8 +13,7 @@ impl crate::Solution for Runner {
             .split("\n\n")
             .map(|l| l.split_whitespace().collect())
             .filter(|p| has_fields(p))
-            .collect::<Vec<Vec<_>>>()
-            .len()
+            .count()
             .to_string();
     }
 
@@ -25,8 +24,7 @@ impl crate::Solution for Runner {
             .map(|l| l.split_whitespace().collect())
             .filter(|e| has_fields(e))
             .filter(|e| validate(e))
-            .collect::<Vec<Vec<_>>>()
-            .len()
+            .count()
             .to_string();
     }
 }
@@ -34,14 +32,7 @@ impl crate::Solution for Runner {
 fn has_fields(passport: &Vec<&str>) -> bool {
     if passport.len() == 8 {
         return true;
-    } else if passport.len() == 7
-        && passport
-            .iter()
-            .filter(|s| s.contains("cid:"))
-            .collect::<Vec<_>>()
-            .len()
-            == 0
-    {
+    } else if passport.len() == 7 && passport.iter().filter(|s| s.contains("cid:")).count() == 0 {
         return true;
     }
     return false;
