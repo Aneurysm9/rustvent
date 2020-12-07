@@ -31,7 +31,7 @@ fn count_answers(set: &str) -> usize {
             if let Some(v) = seen.get_mut(&c) {
                 *v += 1;
             } else {
-                seen.insert(c.clone(), 1);
+                seen.insert(c, 1);
             }
         }
     }

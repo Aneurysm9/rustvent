@@ -6,6 +6,7 @@ pub mod day3;
 pub mod day4;
 pub mod day5;
 pub mod day6;
+pub mod day7;
 
 pub fn new(day: &str, input: String) -> Option<Box<dyn Solution>> {
     match day {
@@ -15,6 +16,7 @@ pub fn new(day: &str, input: String) -> Option<Box<dyn Solution>> {
         "4" => Some(Box::new(day4::Runner { input })),
         "5" => Some(Box::new(day5::Runner { input })),
         "6" => Some(Box::new(day6::Runner { input })),
+        "7" => Some(Box::new(day7::Runner { input })),
         _ => None,
     }
 }
