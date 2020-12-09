@@ -37,7 +37,7 @@ fn parse_input(input: &str) -> Vec<u64> {
         .collect()
 }
 
-fn find_weakness(nums: &Vec<u64>) -> u64 {
+fn find_weakness(nums: &[u64]) -> u64 {
     'outer: for vals in nums.windows(26) {
         let tgt = vals[25];
         for pair in vals[0..25].iter().combinations(2) {
