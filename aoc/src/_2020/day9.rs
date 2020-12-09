@@ -16,11 +16,10 @@ impl crate::Solution for Runner {
         while nums[i] < weakness {
             let mut j = i + 1;
             while nums[j] < weakness {
-                let iter = nums[i..j].iter();
-                if iter.clone().sum::<u64>() == weakness {
-                    let min = iter.clone().min().unwrap();
-                    let max = iter.max().unwrap();
-                    return (min + max).to_string();
+                if nums[i..j].iter().sum::<u64>() == weakness {
+                    if let itertools::MinMaxResult::MinMax(min, max) = nums[i..j].iter().minmax() {
+                        return (min + max).to_string();
+                    }
                 }
                 j += 1;
             }
