@@ -1,4 +1,5 @@
 use std::fs;
+use std::time::Instant;
 
 use structopt::StructOpt;
 
@@ -20,6 +21,10 @@ struct Opt {
     // Input filename
     #[structopt(short, long)]
     input: Option<String>,
+
+    // Print runtime
+    #[structopt(short, long)]
+    timing: bool,
 }
 
 fn main() {
@@ -30,6 +35,8 @@ fn main() {
         Some(i) => input = i,
         None => input = format!("input/{}/day{}.in", opt.year, opt.day),
     }
+
+    let start = Instant::now();
 
     match aoc::new(
         &opt.year,
@@ -46,5 +53,9 @@ fn main() {
             _ => panic!("puzzle part must be 'a', 'b', or 'both'."),
         },
         None => panic!("Unknown puzzle requested."),
+    }
+
+    if opt.timing {
+        println!("{:?}", start.elapsed());
     }
 }
