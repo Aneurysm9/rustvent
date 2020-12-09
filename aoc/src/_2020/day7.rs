@@ -64,8 +64,7 @@ fn contains(bags: &HashMap<String, HashMap<String, usize>>, start: &str, target:
 fn inner_count(bags: &HashMap<String, HashMap<String, usize>>, start: &str) -> usize {
     let mut res = 0;
     if let Some(bag) = bags.get(start) {
-        for name in bag.keys() {
-            let count = bag.get(name).unwrap();
+        for (name, count) in bag.iter() {
             res += count;
             res += count * inner_count(bags, name);
         }
