@@ -13,22 +13,20 @@ impl crate::Solution for Runner {
         let nums = parse_input(&self.input);
         let weakness = find_weakness(&nums);
         let mut i = 0;
-        let mut res = 0;
-        'outer: while nums[i] < weakness {
+        while nums[i] < weakness {
             let mut j = i + 1;
             while nums[j] < weakness {
                 let iter = nums[i..j].iter();
                 if iter.clone().sum::<u64>() == weakness {
                     let min = iter.clone().min().unwrap();
                     let max = iter.max().unwrap();
-                    res = min + max;
-                    break 'outer;
+                    return (min + max).to_string();
                 }
                 j += 1;
             }
             i += 1;
         }
-        res.to_string()
+        String::from("Unable to find answer")
     }
 }
 
@@ -41,7 +39,6 @@ fn parse_input(input: &str) -> Vec<u64> {
 }
 
 fn find_weakness(nums: &Vec<u64>) -> u64 {
-    let mut res = 0;
     'outer: for vals in nums.windows(26) {
         let tgt = vals[25];
         for pair in vals[0..25].iter().combinations(2) {
@@ -49,7 +46,7 @@ fn find_weakness(nums: &Vec<u64>) -> u64 {
                 continue 'outer;
             }
         }
-        res = tgt;
+        return tgt;
     }
-    res
+    0
 }
