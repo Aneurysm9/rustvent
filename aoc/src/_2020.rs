@@ -22,6 +22,7 @@ pub fn new(day: &str, input: String) -> Option<Box<dyn Solution>> {
         "6" => Some(Box::new(day6::Runner { input })),
         "7" => Some(Box::new(day7::Runner { input })),
         "8" => Some(Box::new(day8::Runner { input })),
+        "9" => Some(Box::new(day9::Runner { input })),
         "10" => Some(Box::new(day10::Runner { input })),
         "11" => Some(Box::new(day11::Runner { input })),
         _ => None,
