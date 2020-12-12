@@ -3,7 +3,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use std::fs;
 
 pub fn benchmark_2020(c: &mut Criterion) {
-    for day in 1..11 {
+    for day in 1..12 {
         run_benchmark(c, 2020, day);
     }
 }
