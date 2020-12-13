@@ -20,24 +20,21 @@ fn parse_op(input: std::slice::Iter<'_, char>) -> i32 {
         .expect("Unable to parse instruction magnitude")
 }
 
-fn parse_input(input: &str) -> impl Iterator<Item=Instruction> + '_ {
-    input
-        .trim()
-        .lines()
-        .map(|l| {
-            let chars: Vec<char> = l.chars().collect();
-            let val = parse_op(chars[1..chars.len()].iter());
-            match chars[0] {
-                'N' => Instruction::North(val),
-                'E' => Instruction::East(val),
-                'S' => Instruction::South(val),
-                'W' => Instruction::West(val),
-                'L' => Instruction::Left(val),
-                'R' => Instruction::Right(val),
-                'F' => Instruction::Forward(val),
-                _ => panic!("Unexpected instruction"),
-            }
-        })
+fn parse_input(input: &str) -> impl Iterator<Item = Instruction> + '_ {
+    input.trim().lines().map(|l| {
+        let chars: Vec<char> = l.chars().collect();
+        let val = parse_op(chars[1..chars.len()].iter());
+        match chars[0] {
+            'N' => Instruction::North(val),
+            'E' => Instruction::East(val),
+            'S' => Instruction::South(val),
+            'W' => Instruction::West(val),
+            'L' => Instruction::Left(val),
+            'R' => Instruction::Right(val),
+            'F' => Instruction::Forward(val),
+            _ => panic!("Unexpected instruction: {:?}", chars),
+        }
+    })
 }
 
 impl crate::Solution for Runner {
@@ -56,7 +53,7 @@ impl crate::Solution for Runner {
                 90 => pos[0] += m,
                 180 => pos[1] -= m,
                 270 => pos[0] -= m,
-                _ => panic!("Unexpected facing direction"),
+                _ => panic!("Unexpected facing direction: {}", facing),
             },
         });
         (pos[0].abs() + pos[1].abs()).to_string()
@@ -76,15 +73,15 @@ impl crate::Solution for Runner {
                     c -= 90;
                     wp = [-wp[1], wp[0]]
                 }
-            },
+            }
             Instruction::Right(m) => {
                 let mut c = m;
                 while c > 0 {
                     c -= 90;
                     wp = [wp[1], -wp[0]]
                 }
-            },
-            Instruction::Forward(m) => pos = [pos[0]+(wp[0]*m), pos[1]+(wp[1]*m)],
+            }
+            Instruction::Forward(m) => pos = [pos[0] + (wp[0] * m), pos[1] + (wp[1] * m)],
         });
         (pos[0].abs() + pos[1].abs()).to_string()
     }

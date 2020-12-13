@@ -25,7 +25,7 @@ impl Point {
         }
     }
 
-    fn visible_neighbors(&self, grid: &Vec<Vec<char>>, n: &mut Vec<Point>) {
+    fn visible_neighbors(&self, grid: &[Vec<char>], n: &mut Vec<Point>) {
         for x in -1i32..2 {
             for y in -1i32..2 {
                 let nx = self.x as i32 + x;
@@ -91,7 +91,7 @@ fn run(input: &str, part_b: bool) -> String {
         .to_string()
 }
 
-fn step(input: &Vec<Vec<char>>, part_b: bool) -> Vec<Vec<char>> {
+fn step(input: &[Vec<char>], part_b: bool) -> Vec<Vec<char>> {
     input
         .clone()
         .iter()

@@ -16,7 +16,7 @@ impl crate::Solution for Runner {
             .lines()
             .map(|l| {
                 l.parse::<usize>()
-                    .expect(&(format!("Unable to parse input: {}", l)))
+                    .unwrap_or_else(|_| panic!("Unable to parse input: {}", l))
             })
             .sorted()
             .collect();
@@ -35,7 +35,7 @@ impl crate::Solution for Runner {
             .lines()
             .map(|l| {
                 l.parse::<usize>()
-                    .expect(&(format!("Unable to parse input: {}", l)))
+                    .unwrap_or_else(|_| panic!("Unable to parse input: {}", l))
             })
             .sorted()
             .collect();
