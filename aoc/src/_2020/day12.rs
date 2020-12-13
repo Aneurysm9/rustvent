@@ -26,14 +26,15 @@ fn parse_input(input: &str) -> impl Iterator<Item=Instruction> + '_ {
         .lines()
         .map(|l| {
             let chars: Vec<char> = l.chars().collect();
+            let val = parse_op(chars[1..chars.len()].iter());
             match chars[0] {
-                'N' => Instruction::North(parse_op(chars[1..chars.len()].iter())),
-                'E' => Instruction::East(parse_op(chars[1..chars.len()].iter())),
-                'S' => Instruction::South(parse_op(chars[1..chars.len()].iter())),
-                'W' => Instruction::West(parse_op(chars[1..chars.len()].iter())),
-                'L' => Instruction::Left(parse_op(chars[1..chars.len()].iter())),
-                'R' => Instruction::Right(parse_op(chars[1..chars.len()].iter())),
-                'F' => Instruction::Forward(parse_op(chars[1..chars.len()].iter())),
+                'N' => Instruction::North(val),
+                'E' => Instruction::East(val),
+                'S' => Instruction::South(val),
+                'W' => Instruction::West(val),
+                'L' => Instruction::Left(val),
+                'R' => Instruction::Right(val),
+                'F' => Instruction::Forward(val),
                 _ => panic!("Unexpected instruction"),
             }
         })
@@ -73,14 +74,14 @@ impl crate::Solution for Runner {
                 let mut c = m;
                 while c > 0 {
                     c -= 90;
-                    wp = [-1*wp[1], wp[0]]
+                    wp = [-wp[1], wp[0]]
                 }
             },
             Instruction::Right(m) => {
                 let mut c = m;
                 while c > 0 {
                     c -= 90;
-                    wp = [wp[1], -1*wp[0]]
+                    wp = [wp[1], -wp[0]]
                 }
             },
             Instruction::Forward(m) => pos = [pos[0]+(wp[0]*m), pos[1]+(wp[1]*m)],
