@@ -93,7 +93,6 @@ fn run(input: &str, part_b: bool) -> String {
 
 fn step(input: &[Vec<char>], part_b: bool) -> Vec<Vec<char>> {
     input
-        .clone()
         .iter()
         .enumerate()
         .map(|(y, l)| {

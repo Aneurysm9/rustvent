@@ -39,7 +39,10 @@ fn parse_input(input: &str) -> Vec<u64> {
     input
         .trim()
         .lines()
-        .map(|l| l.parse().expect(&(format!("Failed to parse: \"{}\"", l))))
+        .map(|l| {
+            l.parse()
+                .unwrap_or_else(|_| panic!("Failed to parse: \"{}\"", l))
+        })
         .collect()
 }
 

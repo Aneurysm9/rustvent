@@ -23,7 +23,7 @@ fn parse_input(input: &str) -> Contest {
             .parse()
             .unwrap_or_else(|e| panic!("Unable to parse timestamp {}: {}", lines[0], e)),
         busses: lines[1]
-            .split(",")
+            .split(',')
             .enumerate()
             .filter_map(|(i, v)| {
                 if v == "x" {
@@ -68,7 +68,7 @@ impl crate::Solution for Runner {
             while (start + bus.offset) % bus.id != 0 {
                 start += skip;
             }
-            skip = skip * ids[ptr];
+            skip *= ids[ptr];
             ptr += 1;
         }
         start.to_string()

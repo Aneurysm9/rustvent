@@ -64,9 +64,9 @@ impl Vm {
                             "jmp" => Opcode::Jmp,
                             _ => panic!("Invalid opcode encountered during parsing"),
                         },
-                        arg: instr[1]
-                            .parse()
-                            .expect(&(format!("Unable to parse argument \"{}\"", instr[1]))),
+                        arg: instr[1].parse().unwrap_or_else(|_| {
+                            panic!("Unable to parse argument \"{}\"", instr[1])
+                        }),
                     }
                 })
                 .collect(),
