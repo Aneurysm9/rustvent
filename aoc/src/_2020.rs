@@ -3,6 +3,7 @@ use crate::Solution;
 pub mod day1;
 pub mod day10;
 pub mod day11;
+pub mod day12;
 pub mod day2;
 pub mod day3;
 pub mod day4;
@@ -25,6 +26,7 @@ pub fn new(day: &str, input: String) -> Option<Box<dyn Solution>> {
         "9" => Some(Box::new(day9::Runner { input })),
         "10" => Some(Box::new(day10::Runner { input })),
         "11" => Some(Box::new(day11::Runner { input })),
+        "12" => Some(Box::new(day12::Runner { input })),
         _ => None,
     }
 }
