@@ -1,0 +1,135 @@
+extern crate regex;
+
+use itertools::Itertools;
+use regex::Regex;
+use std::collections::{HashMap, HashSet};
+
+pub struct Runner {
+    pub input: String,
+}
+
+impl crate::Solution for Runner {
+    fn run_a(&self) -> String {
+        let (rules, _, others) = self.parse_input();
+        others
+            .iter()
+            .fold(0, |acc, ticket| {
+                acc + ticket
+                    .iter()
+                    .filter(|v| rules.iter().all(|r| !r.valid(**v)))
+                    .sum::<usize>()
+            })
+            .to_string()
+    }
+
+    fn run_b(&self) -> String {
+        let (rules, mine, others) = self.parse_input();
+        let mut possible = Vec::<HashSet<&str>>::new();
+        for _ in mine.iter() {
+            possible.push(HashSet::new());
+        }
+
+        let valid: Vec<&Vec<usize>> = others
+            .iter()
+            .filter(|t| t.iter().all(|v| rules.iter().any(|r| r.valid(*v))))
+            .collect();
+
+        for pos in 0..20 {
+            for rule in rules.iter() {
+                if valid.iter().all(|t| rule.valid(t[pos])) {
+                    possible[pos].insert(&rule.name);
+                }
+            }
+        }
+
+        let mut found = HashMap::new();
+        for (p, set) in possible
+            .iter()
+            .enumerate()
+            .map(|(i, v)| (i, v))
+            .sorted_by_key(|p| p.1.len())
+        {
+            for v in set.iter() {
+                if !found.contains_key(v) {
+                    found.insert(v, p);
+                    continue;
+                }
+            }
+        }
+
+        found
+            .iter()
+            .fold(1, |acc, (field, pos)| {
+                if field.starts_with("departure") {
+                    acc * mine[*pos]
+                } else {
+                    acc
+                }
+            })
+            .to_string()
+    }
+}
+
+impl Runner {
+    fn parse_input(&self) -> (Vec<Rule>, Vec<usize>, Vec<Vec<usize>>) {
+        lazy_static! {
+            static ref RULE_RE: Regex = Regex::new(r"(.+): (\d+)-(\d+) or (\d+)-(\d+)").unwrap();
+        }
+        let (rulestr, minestr, otherstr) = self.input.split("\n\n").collect_tuple().unwrap();
+        (
+            rulestr
+                .split('\n')
+                .filter_map(|l| match RULE_RE.captures(l) {
+                    Some(caps) => Some(Rule {
+                        name: String::from(caps.get(1).unwrap().as_str()),
+                        ranges: vec![
+                            caps.get(2).unwrap().as_str().parse().unwrap(),
+                            caps.get(3).unwrap().as_str().parse().unwrap(),
+                            caps.get(4).unwrap().as_str().parse().unwrap(),
+                            caps.get(5).unwrap().as_str().parse().unwrap(),
+                        ],
+                    }),
+                    None => None,
+                })
+                .collect(),
+            minestr
+                .trim()
+                .lines()
+                .nth(1)
+                .unwrap()
+                .split(',')
+                .map(|n| {
+                    n.parse()
+                        .unwrap_or_else(|e| panic!("Error parsing my ticket value {}: {}", n, e))
+                })
+                .collect(),
+            otherstr
+                .trim()
+                .lines()
+                .skip(1)
+                .map(|l| {
+                    l.split(',')
+                        .map(|n| {
+                            n.parse().unwrap_or_else(|e| {
+                                panic!("Error parsing other ticket value {}: {}", n, e)
+                            })
+                        })
+                        .collect()
+                })
+                .collect(),
+        )
+    }
+}
+
+#[derive(Debug)]
+struct Rule {
+    name: String,
+    ranges: Vec<usize>,
+}
+
+impl Rule {
+    fn valid(&self, tst: usize) -> bool {
+        (self.ranges[0] <= tst && tst <= self.ranges[1])
+            || (self.ranges[2] <= tst && tst <= self.ranges[3])
+    }
+}
