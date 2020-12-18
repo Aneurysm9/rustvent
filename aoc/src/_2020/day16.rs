@@ -24,38 +24,33 @@ impl crate::Solution for Runner {
 
     fn run_b(&self) -> String {
         let (rules, mine, others) = self.parse_input();
-        let mut possible = Vec::<HashSet<&str>>::new();
-        for _ in mine.iter() {
-            possible.push(HashSet::new());
-        }
-
-        let valid: Vec<&Vec<usize>> = others
+        let valid: Vec<_> = others
             .iter()
-            .filter(|t| t.iter().all(|v| rules.iter().any(|r| r.valid(*v))))
+            .filter(|ticket| {
+                ticket
+                    .iter()
+                    .all(|val| rules.iter().any(|rule| rule.valid(*val)))
+            })
             .collect();
 
+        let mut possible = Vec::new();
         for pos in 0..20 {
+            possible.push(HashSet::new());
             for rule in rules.iter() {
-                if valid.iter().all(|t| rule.valid(t[pos])) {
+                if valid.iter().all(|ticket| rule.valid(ticket[pos])) {
                     possible[pos].insert(&rule.name);
                 }
             }
         }
 
         let mut found = HashMap::new();
-        for (p, set) in possible
+        possible
             .iter()
             .enumerate()
-            .map(|(i, v)| (i, v))
-            .sorted_by_key(|p| p.1.len())
-        {
-            for v in set.iter() {
-                if !found.contains_key(v) {
-                    found.insert(v, p);
-                    continue;
-                }
-            }
-        }
+            .sorted_by_key(|(_, set)| set.len())
+            .for_each(|(p, set)| {
+                found.insert(set.iter().find(|v| !found.contains_key(v)).unwrap(), p);
+            });
 
         found
             .iter()
