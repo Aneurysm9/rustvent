@@ -44,7 +44,7 @@ fn compile_rules(input: &HashMap<&str, &str>, tgt: &str, depth: usize) -> String
         static ref SIMPLE_RE: Regex = Regex::new("^[\\d ]+$").unwrap();
     }
 
-    if depth > 15 || tgt == "" {
+    if depth > 15 || tgt.is_empty() {
         return String::from("");
     }
 
@@ -54,7 +54,7 @@ fn compile_rules(input: &HashMap<&str, &str>, tgt: &str, depth: usize) -> String
         caps[1].into()
     } else if SIMPLE_RE.is_match(tgt_rule) {
         tgt_rule
-            .split(" ")
+            .split(' ')
             .map(|r| compile_rules(&input, r, depth + 1))
             .collect::<Vec<String>>()
             .join("")
@@ -62,9 +62,9 @@ fn compile_rules(input: &HashMap<&str, &str>, tgt: &str, depth: usize) -> String
         format!(
             "({})",
             tgt_rule
-                .split("|")
+                .split('|')
                 .map(|a| a
-                    .split(" ")
+                    .split(' ')
                     .map(|r| compile_rules(&input, r, depth + 1))
                     .collect::<Vec<String>>()
                     .join(""))

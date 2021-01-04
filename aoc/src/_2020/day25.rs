@@ -8,7 +8,7 @@ impl crate::Solution for Runner {
             .input
             .trim()
             .lines()
-            .nth(0)
+            .next()
             .unwrap()
             .parse::<usize>()
             .unwrap();

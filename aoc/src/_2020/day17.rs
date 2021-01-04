@@ -33,7 +33,7 @@ impl Point {
             for y in -1..2 {
                 for z in -1..2 {
                     if part_b {
-                        for w in vec![-1, 1] {
+                        for w in &[-1, 1] {
                             if self.x == self.x + x
                                 && self.y == self.y + y
                                 && self.z == self.z + z
@@ -111,7 +111,7 @@ impl Iterator for Grid {
                     None => secondary.push(n),
                 }
             }
-            if (*active_cell && (active == 2 || active == 3)) || (!*active_cell && active == 3) {
+            if active == 3 || *active_cell && active == 2 {
                 cells.insert(*c, true);
             }
         }

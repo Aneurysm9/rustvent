@@ -10,7 +10,7 @@ impl crate::Solution for Runner {
         match_tiles(&self.parse_input())
             .iter()
             .filter_map(|(id, c)| if c.len() == 2 { Some(id) } else { None })
-            .fold(1, |v, id| v * id)
+            .product::<usize>()
             .to_string()
     }
 
@@ -31,7 +31,7 @@ impl Runner {
                 (
                     lines[0]
                         .trim()
-                        .split(" ")
+                        .split(' ')
                         .nth(1)
                         .unwrap()
                         .strip_suffix(":")
@@ -202,7 +202,7 @@ impl fmt::Display for Tile {
                 }
             }
             if y < len - 1 {
-                if let Err(e) = write!(f, "\n") {
+                if let Err(e) = writeln!(f) {
                     return Err(e);
                 }
             }

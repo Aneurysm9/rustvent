@@ -27,7 +27,7 @@ impl Mask {
     }
 
     fn apply(&self, val: &u64) -> u64 {
-        let mut out = val.clone();
+        let mut out = *val;
         out &= self.and;
         out |= self.or;
         out
@@ -48,7 +48,7 @@ struct MaskIter {
 
 impl MaskIter {
     fn new(val: &u64, mask: &Mask) -> MaskIter {
-        let mut v = val.clone() | mask.or;
+        let mut v = *val | mask.or;
         v &= !mask.float;
         MaskIter {
             val: v,
@@ -123,7 +123,6 @@ impl crate::Solution for Runner {
                 Instruction::Mask(m) => mask = m,
                 Instruction::Mem(addr, val) => {
                     mem.insert(addr, mask.apply(&val));
-                    ()
                 }
             }
         }
@@ -139,7 +138,6 @@ impl crate::Solution for Runner {
                 Instruction::Mem(addr, val) => {
                     for tgt in mask.iter(&addr) {
                         mem.insert(tgt, val);
-                        ()
                     }
                 }
             }

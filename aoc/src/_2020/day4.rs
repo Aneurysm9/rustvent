@@ -54,19 +54,19 @@ fn validate(passport: &Vec<&str>) -> bool {
         match key {
             "byr" => {
                 let byr: u32 = val.trim().parse().expect("Cannot parse byr");
-                if byr < 1920 || byr > 2002 {
+                if !(1920..=2002).contains(&byr) {
                     return false;
                 }
             }
             "iyr" => {
                 let iyr: u32 = val.trim().parse().expect("Cannot parse byr");
-                if iyr < 2010 || iyr > 2020 {
+                if !(2010..=2020).contains(&iyr) {
                     return false;
                 }
             }
             "eyr" => {
                 let eyr: u32 = val.trim().parse().expect("Cannot parse byr");
-                if eyr < 2020 || eyr > 2030 {
+                if !(2020..=2030).contains(&eyr) {
                     return false;
                 }
             }
@@ -79,12 +79,12 @@ fn validate(passport: &Vec<&str>) -> bool {
                     let unit = &cap[2];
                     match unit {
                         "cm" => {
-                            if hgt < 150 || hgt > 193 {
+                            if !(150..=193).contains(&hgt) {
                                 return false;
                             }
                         }
                         "in" => {
-                            if hgt < 59 || hgt > 76 {
+                            if !(59..=76).contains(&hgt) {
                                 return false;
                             }
                         }

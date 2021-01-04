@@ -19,7 +19,7 @@ impl crate::Solution for Runner {
                 for ingredient in food.ingredients.iter() {
                     *(allergens
                         .entry(allergen.clone())
-                        .or_insert(HashMap::<String, usize>::new())
+                        .or_insert_with(HashMap::<String, usize>::new)
                         .entry(ingredient.clone())
                         .or_insert(0)) += 1;
                 }
@@ -55,7 +55,7 @@ impl crate::Solution for Runner {
                 for ingredient in food.ingredients.iter() {
                     *(allergens
                         .entry(allergen.clone())
-                        .or_insert(HashMap::<String, usize>::new())
+                        .or_insert_with(HashMap::<String, usize>::new)
                         .entry(ingredient.clone())
                         .or_insert(0)) += 1;
                 }
@@ -103,7 +103,7 @@ impl Runner {
             .map(|l| {
                 let parts: Vec<_> = l.strip_suffix(")").unwrap().split(" (contains ").collect();
                 Food {
-                    ingredients: parts[0].split(" ").map(|s| s.to_owned()).collect(),
+                    ingredients: parts[0].split(' ').map(|s| s.to_owned()).collect(),
                     allergens: parts[1].split(", ").map(|s| s.to_owned()).collect(),
                 }
             })

@@ -42,11 +42,11 @@ struct Game {
 
 impl Game {
     fn play_simple(&mut self) -> usize {
-        while self.hands[0].len() > 0 && self.hands[1].len() > 0 {
+        while !self.hands[0].is_empty() && !self.hands[1].is_empty() {
             let cards = self.draw();
             self.simple_round(cards);
         }
-        self.score(if self.hands[0].len() > 0 { 0 } else { 1 })
+        self.score(if !self.hands[0].is_empty() { 0 } else { 1 })
     }
 
     fn simple_round(&mut self, (a, b): (usize, usize)) {
@@ -60,7 +60,7 @@ impl Game {
     }
 
     fn play_recursive(&mut self) -> (usize, usize) {
-        while self.hands[0].len() > 0 && self.hands[1].len() > 0 {
+        while !self.hands[0].is_empty() && !self.hands[1].is_empty() {
             if self.seen() {
                 return (0, self.score(0));
             }
@@ -94,7 +94,7 @@ impl Game {
             }
         }
 
-        let winner = if self.hands[0].len() > 0 { 0 } else { 1 };
+        let winner = if !self.hands[0].is_empty() { 0 } else { 1 };
         (winner, self.score(winner))
     }
 
