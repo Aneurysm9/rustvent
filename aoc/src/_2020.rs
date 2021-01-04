@@ -14,7 +14,10 @@ pub mod day19;
 pub mod day2;
 pub mod day20;
 pub mod day21;
+pub mod day22;
 pub mod day23;
+pub mod day24;
+pub mod day25;
 pub mod day3;
 pub mod day4;
 pub mod day5;
@@ -46,7 +49,10 @@ pub fn new(day: &str, input: String) -> Option<Box<dyn Solution>> {
         "19" => Some(Box::new(day19::Runner { input })),
         "20" => Some(Box::new(day20::Runner { input })),
         "21" => Some(Box::new(day21::Runner { input })),
+        "22" => Some(Box::new(day22::Runner { input })),
         "23" => Some(Box::new(day23::Runner { input })),
+        "24" => Some(Box::new(day24::Runner { input })),
+        "25" => Some(Box::new(day25::Runner { input })),
         _ => None,
     }
 }
