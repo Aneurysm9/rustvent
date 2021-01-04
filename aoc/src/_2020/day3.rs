@@ -38,51 +38,37 @@ fn check_slope(map: &[Vec<char>], rise: usize, run: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Solution;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "3"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "3_simple"),
+        }
+    }
 
     #[test]
     fn simple_a() {
-        assert_eq!(
-            Runner {
-                input: String::from(
-                    "..##.......
-#...#...#..
-.#....#..#.
-..#.#...#.#
-.#...##..#.
-..#.##.....
-.#.#.#....#
-.#........#
-#.##...#...
-#...##....#
-.#..#...#.#"
-                )
-            }
-            .run_a(),
-            String::from("7")
-        );
+        assert_eq!(simple().run_a(), String::from("7"));
     }
 
     #[test]
     fn simple_b() {
-        assert_eq!(
-            Runner {
-                input: String::from(
-                    "..##.......
-#...#...#..
-.#....#..#.
-..#.#...#.#
-.#...##..#.
-..#.##.....
-.#.#.#....#
-.#........#
-#.##...#...
-#...##....#
-.#..#...#.#"
-                )
-            }
-            .run_b(),
-            String::from("336")
-        );
+        assert_eq!(simple().run_b(), String::from("336"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("200"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("3737923200"));
     }
 }

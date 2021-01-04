@@ -74,3 +74,41 @@ impl crate::Solution for Runner {
         start.to_string()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "13"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "13_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("295"));
+    }
+
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("1068781"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("115"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("756261495958122"));
+    }
+}

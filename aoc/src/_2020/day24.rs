@@ -147,3 +147,41 @@ impl Location {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "24"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "24_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("10"));
+    }
+
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("2208"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("375"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("3937"));
+    }
+}

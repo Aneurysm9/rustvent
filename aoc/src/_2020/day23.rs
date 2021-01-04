@@ -13,7 +13,7 @@ impl crate::Solution for Runner {
             .chars()
             .map(|c| c.to_string().parse().unwrap())
             .collect();
-        let mut cups = [0; 10];
+        let mut cups = vec![0; 10];
         for (i, v) in seed.iter().enumerate() {
             cups[*v] = seed[(i + 1) % seed.len()];
         }
@@ -40,7 +40,7 @@ impl crate::Solution for Runner {
             .chars()
             .map(|c| c.to_string().parse().unwrap())
             .collect();
-        let mut cups = [0; 1_000_001];
+        let mut cups = vec![0; 1_000_001];
         for (i, v) in seed.iter().enumerate() {
             cups[*v] = seed[(i + 1) % seed.len()];
         }
@@ -81,4 +81,42 @@ fn round(cups: &mut [usize], cur: usize) -> usize {
     cups[cups[cups[next]]] = cups[tgt];
     cups[tgt] = next;
     cups[cur]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "23"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "23_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("67384529"));
+    }
+
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("149245887792"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("72496583"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("41785843847"));
+    }
 }

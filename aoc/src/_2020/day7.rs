@@ -71,3 +71,41 @@ fn inner_count(bags: &HashMap<String, HashMap<String, usize>>, start: &str) -> u
     }
     res
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "7"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "7_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("4"));
+    }
+
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("32"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("185"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("89084"));
+    }
+}

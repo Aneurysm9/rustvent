@@ -40,3 +40,31 @@ impl crate::Solution for Runner {
         String::from("Happy AoC!")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "25"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "25_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("14897079"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("448851"));
+    }
+}

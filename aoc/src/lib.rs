@@ -1,3 +1,5 @@
+use std::fs;
+
 #[macro_use]
 extern crate lazy_static;
 
@@ -15,4 +17,8 @@ pub fn new(year: &str, day: &str, input: String) -> Option<Box<dyn Solution>> {
         "2020" => _2020::new(day, input),
         _ => None,
     }
+}
+
+pub fn read_input(year: usize, suffix: &str) -> String {
+    fs::read_to_string(format!("../input/{}/day{}.in", year, suffix)).expect("Error reading file")
 }

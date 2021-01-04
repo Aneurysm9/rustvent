@@ -39,3 +39,25 @@ fn to_int(seat: &str) -> isize {
     out = out.replace("R", "1");
     isize::from_str_radix(&out, 2).unwrap()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "5"),
+        }
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("861"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("633"));
+    }
+}

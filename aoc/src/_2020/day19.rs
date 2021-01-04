@@ -73,3 +73,25 @@ fn compile_rules(input: &HashMap<&str, &str>, tgt: &str, depth: usize) -> String
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "19"),
+        }
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("239"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("405"));
+    }
+}

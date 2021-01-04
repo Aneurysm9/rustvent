@@ -44,41 +44,37 @@ impl crate::Solution for Runner {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Solution;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "1"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "1_simple"),
+        }
+    }
 
     #[test]
     fn simple_a() {
-        assert_eq!(
-            Runner {
-                input: String::from(
-                    "1721
-979
-366
-299
-675
-1456"
-                )
-            }
-            .run_a(),
-            String::from("514579")
-        );
+        assert_eq!(simple().run_a(), String::from("514579"));
     }
 
     #[test]
     fn simple_b() {
-        assert_eq!(
-            Runner {
-                input: String::from(
-                    "1721
-979
-366
-299
-675
-1456"
-                )
-            }
-            .run_b(),
-            String::from("241861950")
-        );
+        assert_eq!(simple().run_b(), String::from("241861950"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("1007331"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("48914340"));
     }
 }

@@ -28,7 +28,7 @@ impl crate::Solution for Runner {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum Opcode {
     Acc,
     Jmp,
@@ -85,11 +85,51 @@ impl Vm {
             let op = &self.mem[self.pc];
             match op.op {
                 Opcode::Acc => self.acc += op.arg,
-                Opcode::Jmp => self.pc = (self.pc as isize + op.arg - 1) as usize,
+                Opcode::Jmp => self.pc = (self.pc as isize + op.arg) as usize,
                 Opcode::Nop => (),
             }
-            self.pc += 1;
+            if op.op != Opcode::Jmp {
+                self.pc += 1;
+            }
         }
         true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "8"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "8_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("5"));
+    }
+
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("8"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("1818"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("631"));
     }
 }

@@ -128,3 +128,25 @@ impl Rule {
             || (self.ranges[2] <= tst && tst <= self.ranges[3])
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "16"),
+        }
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("23009"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("10458887314153"));
+    }
+}

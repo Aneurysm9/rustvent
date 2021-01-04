@@ -234,3 +234,41 @@ impl Deref for Side {
         &self.0
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "20"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "20_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("20899048083289"));
+    }
+
+    // #[test]
+    // fn simple_b() {
+    //     assert_eq!(simple().run_b(), String::from("273"));
+    // }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("16192267830719"));
+    }
+
+    // #[test]
+    // fn real_b() {
+    //     assert_eq!(new().run_b(), String::from("1909"));
+    // }
+}

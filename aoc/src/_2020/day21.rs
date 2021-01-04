@@ -115,3 +115,44 @@ struct Food {
     ingredients: Vec<String>,
     allergens: Vec<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "21"),
+        }
+    }
+
+    fn simple() -> Runner {
+        Runner {
+            input: read_input(2020, "21_simple"),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple().run_a(), String::from("5"));
+    }
+
+    // #[test]
+    // fn simple_b() {
+    //     assert_eq!(simple().run_b(), String::from("mxmxvkd,sqjhc,fvjkl"));
+    // }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("2569"));
+    }
+
+    // #[test]
+    // fn real_b() {
+    //     assert_eq!(
+    //         new().run_b(),
+    //         String::from("vmhqr,qxfzc,khpdjv,gnrpml,xrmxxvn,rfmvh,rdfr,jxh")
+    //     );
+    // }
+}

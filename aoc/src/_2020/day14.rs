@@ -64,7 +64,7 @@ impl Iterator for MaskIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.started {
-            self.cur = (self.cur - self.mask.float) & self.mask.float;
+            self.cur = self.cur.wrapping_sub(self.mask.float) & self.mask.float;
         }
 
         if self.cur == 0 && self.started {
@@ -143,5 +143,43 @@ impl crate::Solution for Runner {
             }
         }
         mem.values().sum::<u64>().to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2020, "14"),
+        }
+    }
+
+    fn simple(case: &str) -> Runner {
+        Runner {
+            input: read_input(2020, &format!("14_{}", case)),
+        }
+    }
+
+    #[test]
+    fn simple_a() {
+        assert_eq!(simple("simple_a").run_a(), String::from("165"));
+    }
+
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple("simple_b").run_b(), String::from("208"));
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("17934269678453"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("3440662844064"));
     }
 }
