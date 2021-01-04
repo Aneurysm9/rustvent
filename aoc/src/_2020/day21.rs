@@ -1,5 +1,4 @@
-use itertools::Itertools;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub struct Runner {
     pub input: String,
@@ -7,6 +6,60 @@ pub struct Runner {
 
 impl crate::Solution for Runner {
     fn run_a(&self) -> String {
+        let (count, ..) = self.init();
+        count
+    }
+
+    fn run_b(&self) -> String {
+        let (_, mut allergens, allergen_counts) = self.init();
+        let mut found = Vec::<(String, String)>::new();
+        while found.len() < allergen_counts.len() {
+            for (a, is) in allergens.clone().iter() {
+                for (i, c) in is.iter() {
+                    if c < allergen_counts.get(a).unwrap() {
+                        allergens.entry(a.clone()).and_modify(|e| {
+                            e.remove(i).unwrap_or_else(|| {
+                                panic!("Unable to remove entry {} {} (1)", a, i)
+                            });
+                        });
+                    }
+                }
+                if is.len() == 1 {
+                    for i in is.keys() {
+                        found.push((a.clone(), i.clone()));
+                        for k in allergens.clone().keys() {
+                            allergens.entry(k.clone()).and_modify(|e| {
+                                if e.contains_key(i) {
+                                    e.remove(i).unwrap_or_else(|| {
+                                        panic!("Unable to remove entry {} {} (2): {:?}", a, i, k)
+                                    });
+                                }
+                            });
+                        }
+                    }
+                    allergens.remove(a);
+                }
+            }
+        }
+
+        found.sort_by(|a, b| a.0.cmp(&b.0));
+        found
+            .iter()
+            .map(|(_, i)| i.clone())
+            .collect::<Vec<_>>()
+            .join(",")
+    }
+}
+
+impl Runner {
+    #[allow(clippy::type_complexity)]
+    fn init(
+        &self,
+    ) -> (
+        String,
+        HashMap<String, HashMap<String, usize>>,
+        HashMap<String, usize>,
+    ) {
         let mut ingredients = HashMap::<String, usize>::new();
         let mut allergens = HashMap::<String, HashMap<String, usize>>::new();
         let mut allergen_counts = HashMap::<String, usize>::new();
@@ -39,63 +92,9 @@ impl crate::Solution for Runner {
             }
             count += ingredient_count;
         }
-        count.to_string()
+        (count.to_string(), allergens, allergen_counts)
     }
 
-    fn run_b(&self) -> String {
-        let mut ingredients = HashMap::<String, usize>::new();
-        let mut allergens = HashMap::<String, HashMap<String, usize>>::new();
-        let mut allergen_counts = HashMap::<String, usize>::new();
-        for food in self.parse_input() {
-            for ingredient in food.ingredients.iter() {
-                *(ingredients.entry(ingredient.clone()).or_insert(0)) += 1;
-            }
-            for allergen in food.allergens.iter() {
-                *(allergen_counts.entry(allergen.clone()).or_insert(0)) += 1;
-                for ingredient in food.ingredients.iter() {
-                    *(allergens
-                        .entry(allergen.clone())
-                        .or_insert_with(HashMap::<String, usize>::new)
-                        .entry(ingredient.clone())
-                        .or_insert(0)) += 1;
-                }
-            }
-        }
-        'ING: for (ingredient, _) in ingredients.iter() {
-            for (allergen, ingredient_counts) in allergens.iter_mut() {
-                let c = ingredient_counts.get(ingredient).unwrap_or(&0);
-                if c == allergen_counts.get(allergen).unwrap_or(&0) {
-                    continue 'ING;
-                } else if c < allergen_counts.get(allergen).unwrap() {
-                    ingredient_counts.remove(ingredient);
-                }
-            }
-            for (_, ingredient_counts) in allergens.iter_mut() {
-                ingredient_counts.remove(ingredient);
-            }
-        }
-        let mut found = Vec::<(String, String)>::new();
-        let mut exclude = HashSet::new();
-        allergens
-            .iter()
-            .sorted_by(|(_, a), (_, b)| a.len().cmp(&b.len()))
-            .for_each(|(p, set)| {
-                let cands: Vec<_> = set.iter().filter(|(k, _)| !exclude.contains(k)).collect();
-                println!("{} {:?}", p, cands);
-                exclude.insert(cands[0].0);
-                found.push((p.clone(), cands[0].0.clone()));
-            });
-
-        found.sort_by(|a, b| a.0.cmp(&b.0));
-        found
-            .iter()
-            .map(|(_, i)| i.clone())
-            .collect::<Vec<_>>()
-            .join(",")
-    }
-}
-
-impl Runner {
     fn parse_input(&self) -> Vec<Food> {
         self.input
             .trim()
@@ -138,21 +137,21 @@ mod tests {
         assert_eq!(simple().run_a(), String::from("5"));
     }
 
-    // #[test]
-    // fn simple_b() {
-    //     assert_eq!(simple().run_b(), String::from("mxmxvkd,sqjhc,fvjkl"));
-    // }
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("mxmxvkd,sqjhc,fvjkl"));
+    }
 
     #[test]
     fn real_a() {
         assert_eq!(new().run_a(), String::from("2569"));
     }
 
-    // #[test]
-    // fn real_b() {
-    //     assert_eq!(
-    //         new().run_b(),
-    //         String::from("vmhqr,qxfzc,khpdjv,gnrpml,xrmxxvn,rfmvh,rdfr,jxh")
-    //     );
-    // }
+    #[test]
+    fn real_b() {
+        assert_eq!(
+            new().run_b(),
+            String::from("vmhqr,qxfzc,khpdjv,gnrpml,xrmxxvn,rfmvh,rdfr,jxh")
+        );
+    }
 }
