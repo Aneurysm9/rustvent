@@ -8,24 +8,22 @@ pub struct Runner {
 
 impl crate::Solution for Runner {
     fn run_a(&self) -> String {
-        return self
-            .input
+        self.input
             .split("\n\n")
             .map(|l| l.split_whitespace().collect())
             .filter(|p| has_fields(p))
             .count()
-            .to_string();
+            .to_string()
     }
 
     fn run_b(&self) -> String {
-        return self
-            .input
+        self.input
             .split("\n\n")
             .map(|l| l.split_whitespace().collect())
             .filter(|e| has_fields(e))
             .filter(|e| validate(e))
             .count()
-            .to_string();
+            .to_string()
     }
 }
 

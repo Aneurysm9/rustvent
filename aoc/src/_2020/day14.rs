@@ -20,7 +20,7 @@ struct Mask {
 impl Mask {
     fn new() -> Mask {
         Mask {
-            and: 0xFFFFFFFFFFFFFFFF,
+            and: 0xFFFF_FFFF_FFFF_FFFF,
             or: 0,
             float: 0,
         }

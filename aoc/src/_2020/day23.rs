@@ -40,17 +40,17 @@ impl crate::Solution for Runner {
             .chars()
             .map(|c| c.to_string().parse().unwrap())
             .collect();
-        let mut cups = [0; 1000001];
+        let mut cups = [0; 1_000_001];
         for (i, v) in seed.iter().enumerate() {
             cups[*v] = seed[(i + 1) % seed.len()];
         }
-        for i in 11..1000001 {
+        for i in 11..1_000_001 {
             cups[i - 1] = i
         }
-        cups[1000000] = seed[0];
+        cups[1_000_000] = seed[0];
         cups[*seed.last().unwrap()] = 10;
         let mut cur = seed[0];
-        for _ in 0..10000000 {
+        for _ in 0..10_000_000 {
             cur = round(&mut cups, cur);
         }
         (cups[1] * cups[cups[1]]).to_string()

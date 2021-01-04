@@ -21,7 +21,7 @@ impl crate::Solution for Runner {
             .parse::<usize>()
             .unwrap();
         let subj: usize = 7;
-        let sz: usize = 20201227;
+        let sz: usize = 20_201_227;
 
         let mut cur = 1;
         let mut rounds = 0;

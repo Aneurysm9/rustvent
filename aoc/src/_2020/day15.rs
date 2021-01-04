@@ -8,7 +8,7 @@ impl crate::Solution for Runner {
     }
 
     fn run_b(&self) -> String {
-        self.run(30000000)
+        self.run(30_000_000)
     }
 }
 
