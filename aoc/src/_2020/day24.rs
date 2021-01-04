@@ -137,7 +137,7 @@ impl Location {
         }
     }
 
-    fn neighbors(&self) -> Vec<Location> {
+    fn neighbors(self) -> Vec<Location> {
         vec![(1, -1), (0, -1), (1, 0), (-1, 0), (0, 1), (-1, 1)]
             .iter()
             .map(|(x, y)| Location {
