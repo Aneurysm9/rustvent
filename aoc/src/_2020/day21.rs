@@ -64,9 +64,7 @@ impl crate::Solution for Runner {
         'ING: for (ingredient, _) in ingredients.iter() {
             for (allergen, ingredient_counts) in allergens.iter_mut() {
                 let c = ingredient_counts.get(ingredient).unwrap_or(&0);
-                if c
-                    == allergen_counts.get(allergen).unwrap_or(&0)
-                {
+                if c == allergen_counts.get(allergen).unwrap_or(&0) {
                     continue 'ING;
                 } else if c < allergen_counts.get(allergen).unwrap() {
                     ingredient_counts.remove(ingredient);
@@ -80,16 +78,20 @@ impl crate::Solution for Runner {
         let mut exclude = HashSet::new();
         allergens
             .iter()
-            .sorted_by(|(_,a), (_,b)| a.len().cmp(&b.len()))
+            .sorted_by(|(_, a), (_, b)| a.len().cmp(&b.len()))
             .for_each(|(p, set)| {
-                let cands:Vec<_> = set.iter().filter(|(k, _)| !exclude.contains(k)).collect();
+                let cands: Vec<_> = set.iter().filter(|(k, _)| !exclude.contains(k)).collect();
                 println!("{} {:?}", p, cands);
                 exclude.insert(cands[0].0);
                 found.push((p.clone(), cands[0].0.clone()));
             });
 
         found.sort_by(|a, b| a.0.cmp(&b.0));
-        found.iter().map(|(_, i)| i.clone()).collect::<Vec<_>>().join(",")
+        found
+            .iter()
+            .map(|(_, i)| i.clone())
+            .collect::<Vec<_>>()
+            .join(",")
     }
 }
 
