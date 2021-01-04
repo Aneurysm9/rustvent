@@ -4,129 +4,80 @@ pub struct Runner {
 
 impl crate::Solution for Runner {
     fn run_a(&self) -> String {
-        self.parse_input()
-            .map(|o| o.value())
+        self.input
+            .trim()
+            .lines()
+            .map(|l| eval(parse(l, true)))
             .sum::<usize>()
             .to_string()
     }
 
     fn run_b(&self) -> String {
-        // let exprs: Vec<Vec<&str>> = self
-        //     .input
-        //     .trim()
-        //     .lines()
-        //     .map(|l| {
-        //         l.chars()
-        //             .filter(|c| *c != ' ')
-        //             .map(|c| {})
-        //             .collect::<Vec<&str>>()
-        //     })
-        //     .collect();
-        String::from("Not implemented")
-    }
-}
-
-impl Runner {
-    fn parse_input(&self) -> impl Iterator<Item = Binop> + '_ {
         self.input
-            // String::from("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2")
             .trim()
             .lines()
-            .filter_map(|l| {
-                let tokens: Vec<_> = l.chars().filter(|c| *c != ' ').collect();
-                Binop::new(&tokens)
-            })
+            .map(|l| eval(parse(l, false)))
+            .sum::<usize>()
+            .to_string()
     }
 }
 
-trait Value {
-    fn value(&self) -> usize;
-}
-
-impl Value for usize {
-    fn value(&self) -> usize {
-        *self
-    }
-}
-
-#[derive(Debug)]
-enum Operation {
-    Add,
-    Mul,
-}
-
-struct Binop {
-    lhs: Box<dyn Value>,
-    rhs: Box<dyn Value>,
-    op: Operation,
-}
-
-impl Value for Binop {
-    fn value(&self) -> usize {
-        match self.op {
-            Operation::Add => self.lhs.value() + self.rhs.value(),
-            Operation::Mul => self.lhs.value() * self.rhs.value(),
-        }
-    }
-}
-
-impl Binop {
-    fn new(input: &[char]) -> Option<Binop> {
-        if input.len() == 1 {
-            return Some(Binop {
-                lhs: Box::new(input[0].to_string().parse::<usize>().unwrap()),
-                op: Operation::Add,
-                rhs: Box::new(0),
-            });
-        }
-        if input.len() < 3 {
-            return None;
-        }
-
-        let mut ptr = input.len() - 1;
-        let rhs: Box<dyn Value> = match input[ptr] {
-            ')' => {
-                let start = match_parens(&input, ptr);
-                let rhs = Box::new(Binop::new(&input[start + 1..ptr]).unwrap());
-                ptr = start;
-                rhs
+fn eval(expr: Vec<char>) -> usize {
+    let mut tmp = Vec::new();
+    let mut ptr = 0;
+    while ptr < expr.len() {
+        match expr[ptr] {
+            n if n.is_numeric() => tmp.push(n.to_string().parse::<usize>().unwrap()),
+            '+' if tmp.len() >= 2 => {
+                let a = tmp.pop().unwrap();
+                let b = tmp.pop().unwrap();
+                tmp.push(a + b);
             }
-            _ => Box::new(input[ptr].to_string().parse::<usize>().unwrap()),
-        };
-        if ptr == 0 {
-            return Some(Binop {
-                lhs: Box::new(0),
-                op: Operation::Add,
-                rhs,
-            });
+            '*' if tmp.len() >= 2 => {
+                let a = tmp.pop().unwrap();
+                let b = tmp.pop().unwrap();
+                tmp.push(a * b);
+            }
+            o => panic!("Unexpected value enctountered: {}", o),
         }
-        ptr -= 1;
-        Some(Binop {
-            lhs: Box::new(Binop::new(&input[..ptr]).unwrap()),
-            op: match input[ptr] {
-                '+' => Operation::Add,
-                '*' => Operation::Mul,
-                o => panic!("Unexpected operation {}", o),
-            },
-            rhs,
-        })
+        ptr += 1;
     }
+    if tmp.len() > 1 {
+        panic!("Unexpected result length {}: {:?}", tmp.len(), tmp);
+    }
+    tmp[0]
 }
 
-fn match_parens(input: &[char], end: usize) -> usize {
-    let mut depth = 0;
-    let mut ptr = end;
-    loop {
-        match input[ptr] {
-            ')' => depth += 1,
-            '(' => depth -= 1,
-            _ => (),
+fn parse(expr: &str, part_a: bool) -> Vec<char> {
+    let mut out = Vec::new();
+    let mut ops = Vec::new();
+    for c in expr.chars().filter(|c| *c != ' ') {
+        match c {
+            n if n.is_numeric() => out.push(n),
+            '+' | '*' => {
+                while !ops.is_empty() {
+                    match ops.last() {
+                        Some('+') | Some('*') if part_a => out.push(ops.pop().unwrap()),
+                        Some('+') if c == '*' => out.push(ops.pop().unwrap()),
+                        _ => break,
+                    }
+                }
+                ops.push(c);
+            }
+            '(' => ops.push(c),
+            ')' => {
+                while *ops.last().unwrap() != '(' {
+                    out.push(ops.pop().unwrap());
+                }
+                ops.pop();
+            }
+            o => panic!("Unexpected value enctountered: {}", o),
         }
-        if depth == 0 {
-            return ptr;
-        }
-        ptr -= 1;
     }
+    while !ops.is_empty() {
+        out.push(ops.pop().unwrap());
+    }
+    out
 }
 
 #[cfg(test)]
@@ -151,18 +102,18 @@ mod tests {
         assert_eq!(simple().run_a(), String::from("26406"));
     }
 
-    // #[test]
-    // fn simple_b() {
-    //     assert_eq!(simple().run_b(), String::from("694122"));
-    // }
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("694122"));
+    }
 
     #[test]
     fn real_a() {
         assert_eq!(new().run_a(), String::from("5019432542701"));
     }
 
-    // #[test]
-    // fn real_b() {
-    //     assert_eq!(new().run_b(), String::from("70518821989947"));
-    // }
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("70518821989947"));
+    }
 }
