@@ -34,8 +34,7 @@ impl Runner {
                         .split(' ')
                         .nth(1)
                         .unwrap()
-                        .strip_suffix(":")
-                        .unwrap()
+                        .trim_end_matches(':')
                         .parse()
                         .unwrap(),
                     Tile(

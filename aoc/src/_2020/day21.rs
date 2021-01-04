@@ -101,7 +101,7 @@ impl Runner {
             .trim()
             .lines()
             .map(|l| {
-                let parts: Vec<_> = l.strip_suffix(")").unwrap().split(" (contains ").collect();
+                let parts: Vec<_> = l.trim_end_matches(')').split(" (contains ").collect();
                 Food {
                     ingredients: parts[0].split(' ').map(|s| s.to_owned()).collect(),
                     allergens: parts[1].split(", ").map(|s| s.to_owned()).collect(),
