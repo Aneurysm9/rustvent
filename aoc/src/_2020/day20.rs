@@ -1,7 +1,8 @@
 use itertools::Itertools;
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fmt,
+    hash::Hash,
     ops::{Deref, DerefMut},
 };
 
@@ -19,96 +20,13 @@ impl crate::Solution for Runner {
     }
 
     fn run_b(&self) -> String {
-        let tiles = self.parse_input();
-        let matches = match_tiles(&tiles);
-        let side_len = (matches.len() as f64).sqrt().floor() as usize;
-        let (mut start, mut next) = matches.iter().find(|(_, v)| v.len() == 2).unwrap();
-        let mut places: Vec<Vec<(usize, Tile)>> = Vec::new();
-        places.push(Vec::new());
-        places[0].push((*start, tiles.get(start).unwrap().clone()));
-        let (mut x, mut y) = (1, 0);
-        loop {
-            while places[y].len() < side_len {
-                let mut matched = false;
-                while !matched {
-                    'm2: for id in next.iter() {
-                        let mut t2 = tiles[id].clone();
-                        for _ in 0..4 {
-                            if places[y][x - 1].1.right() == t2.left() {
-                                places[y].push((*id, t2));
-                                matched = true;
-                                start = id;
-                                next = &matches[start];
-                                break 'm2;
-                            }
-                            if places[y][x - 1].1.right() == t2.left().reverse() {
-                                places[y].push((*id, t2.flipv()));
-                                matched = true;
-                                start = id;
-                                next = &matches[start];
-                                break 'm2;
-                            }
-                            t2 = t2.rotr();
-                        }
-                    }
-                    if !matched && y == 0 {
-                        places[y][0].1 = places[y][0].1.rotr();
-                    }
-                }
-                x += 1;
-            }
-
-            x = 0;
-            y += 1;
-            if y == side_len {
-                break;
-            }
-            places.push(Vec::new());
-            start = &places[y - 1][x].0;
-            next = &matches[start];
-            let mut matched = false;
-            while !matched {
-                'm: for id in next.iter() {
-                    let mut t2 = tiles[id].clone();
-                    for _ in 0..4 {
-                        if places[y - 1][x].1.bottom() == t2.top() {
-                            places[y].push((*id, t2));
-                            matched = true;
-                            start = id;
-                            next = &matches[start];
-                            break 'm;
-                        }
-                        if places[y - 1][x].1.bottom() == t2.top().reverse() {
-                            places[y].push((*id, t2.fliph()));
-                            matched = true;
-                            start = id;
-                            next = &matches[start];
-                            break 'm;
-                        }
-                        t2 = t2.rotr();
-                    }
-                }
-                if !matched && y == 1 {
-                    places[y - 1] = places[y - 1].iter().map(|t| (t.0, t.1.rotr())).collect();
-                }
-            }
-            x += 1;
-        }
-
-        let mut big = Tile(HashMap::new());
-        let mul = places[0][0].1.side_end() - 1;
-        for (r, rv) in places.iter().enumerate() {
-            for (c, (_, t)) in rv.iter().enumerate() {
-                big.merge(&t.trim(), Point(c * mul, r * mul));
-            }
-        }
-        println!("{}", big.side_len());
+        let mut big = assemble_puzzle(&mut self.parse_input()).rescale();
         let nessie = Tile::nessie();
+
         for _ in 0..4 {
             for _ in 0..2 {
                 let count = big.nessie_count(&nessie);
                 if count > 0 {
-                    println!("{}", big);
                     return (big.rough_count() - nessie.rough_count() * count).to_string();
                 }
                 big = big.fliph();
@@ -144,7 +62,7 @@ impl Runner {
                                 l.trim()
                                     .chars()
                                     .enumerate()
-                                    .map(|(x, c)| (Point(x, y), c == '#'))
+                                    .map(|(x, c)| (Point(x as isize, y as isize), c == '#'))
                                     .collect::<Vec<_>>()
                             })
                             .collect(),
@@ -153,6 +71,52 @@ impl Runner {
             })
             .collect()
     }
+}
+
+fn assemble_puzzle(tiles: &mut HashMap<usize, Tile>) -> Tile {
+    let mut big = Tile(HashMap::new());
+    let matches = match_tiles(tiles);
+
+    let initial = matches.iter().next().unwrap();
+
+    let mut corners = HashMap::new();
+    corners.insert(initial.0, Point(1000, 1000));
+    big.merge(&tiles.get(initial.0).unwrap().trim(), Point(1000, 1000));
+
+    let mut frontier = vec![initial];
+    let mut seen = HashSet::new();
+
+    while !frontier.is_empty() {
+        let (id, others) = frontier.pop().unwrap();
+        if seen.contains(id) {
+            continue;
+        }
+        seen.insert(id);
+        let tile = tiles.get(&id).unwrap().clone();
+        let start = corners.get(&id).unwrap();
+        let side_len = tile.side_len() - 2;
+        let sides = &[
+            ("top", start.add(&Point(0, -side_len))),
+            ("left", start.add(&Point(-side_len, 0))),
+            ("right", start.add(&Point(side_len, 0))),
+            ("bottom", start.add(&Point(0, side_len))),
+        ];
+        for oid in others {
+            if seen.contains(oid) {
+                continue;
+            }
+            frontier.push((oid, matches.get(oid).unwrap()));
+            for (side, offset) in sides {
+                if let Some(aligned) = tile.align(side, tiles.get(&oid).unwrap()) {
+                    big.merge(&aligned.trim(), *offset);
+                    corners.insert(oid, *offset);
+                    tiles.insert(*oid, aligned);
+                    break;
+                }
+            }
+        }
+    }
+    big
 }
 
 fn match_tiles(tiles: &HashMap<usize, Tile>) -> HashMap<usize, Vec<usize>> {
@@ -179,7 +143,7 @@ fn match_tiles(tiles: &HashMap<usize, Tile>) -> HashMap<usize, Vec<usize>> {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone, Copy)]
-struct Point(usize, usize);
+struct Point(isize, isize);
 
 impl Point {
     fn mul(&self, other: &Point) -> Point {
@@ -220,18 +184,18 @@ impl Tile {
                 l.trim()
                     .chars()
                     .enumerate()
-                    .map(|(x, c)| (Point(x, y), c == '#'))
+                    .map(|(x, c)| (Point(x as isize, y as isize), c == '#'))
                     .collect::<Vec<_>>()
             })
             .collect(),
         )
     }
 
-    fn side_len(&self) -> usize {
-        (self.len() as f64).sqrt().floor() as usize
+    fn side_len(&self) -> isize {
+        (self.len() as f64).sqrt().floor() as isize
     }
 
-    fn side_end(&self) -> usize {
+    fn side_end(&self) -> isize {
         self.side_len() - 1
     }
 
@@ -324,6 +288,40 @@ impl Tile {
         false
     }
 
+    fn align(&self, side: &str, other: &Tile) -> Option<Tile> {
+        let tgt = match side {
+            "top" => self.top(),
+            "left" => self.left(),
+            "right" => self.right(),
+            "bottom" => self.bottom(),
+            s => panic!("Unexpected side match attempted: {}", s),
+        };
+        let mut ret = other.clone();
+        for _ in 0..4 {
+            let cmp = match side {
+                "top" => ret.bottom(),
+                "left" => ret.right(),
+                "right" => ret.left(),
+                "bottom" => ret.top(),
+                s => panic!("Unexpected side match attempted: {}", s),
+            };
+
+            if tgt == cmp {
+                return Some(ret);
+            } else if tgt == cmp.reverse() {
+                return match side {
+                    "top" => Some(ret.fliph()),
+                    "left" => Some(ret.flipv()),
+                    "right" => Some(ret.flipv()),
+                    "bottom" => Some(ret.fliph()),
+                    s => panic!("Unexpected side match attempted: {}", s),
+                };
+            }
+            ret = ret.rotr();
+        }
+        None
+    }
+
     fn is_at(&self, other: &Tile, offset: Point) -> bool {
         for (p, c) in self.iter() {
             let p2 = p.add(&offset);
@@ -343,6 +341,13 @@ impl Tile {
 
     fn rough_count(&self) -> usize {
         self.values().filter(|v| **v).count()
+    }
+
+    fn rescale(&self) -> Tile {
+        let minx = self.keys().map(|p| p.0).min().unwrap();
+        let miny = self.keys().map(|p| p.1).min().unwrap();
+        let offset = Point(-minx, -miny);
+        Tile(self.iter().map(|(p, c)| (p.add(&offset), *c)).collect())
     }
 }
 
@@ -428,18 +433,18 @@ mod tests {
         assert_eq!(simple().run_a(), String::from("20899048083289"));
     }
 
-    // #[test]
-    // fn simple_b() {
-    //     assert_eq!(simple().run_b(), String::from("273"));
-    // }
+    #[test]
+    fn simple_b() {
+        assert_eq!(simple().run_b(), String::from("273"));
+    }
 
     #[test]
     fn real_a() {
         assert_eq!(new().run_a(), String::from("16192267830719"));
     }
 
-    // #[test]
-    // fn real_b() {
-    //     assert_eq!(new().run_b(), String::from("1909"));
-    // }
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("1909"));
+    }
 }
