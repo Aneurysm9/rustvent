@@ -44,7 +44,7 @@ fn compile_rules(input: &HashMap<&str, &str>, tgt: &str, depth: usize) -> String
         static ref SIMPLE_RE: Regex = Regex::new("^[\\d ]+$").unwrap();
     }
 
-    if depth > 15 || tgt.is_empty() {
+    if depth > 16 || tgt.is_empty() {
         return String::from("");
     }
 
