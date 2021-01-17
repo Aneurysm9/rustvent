@@ -28,3 +28,25 @@ fn exec(input: &str, noun: i64, verb: i64) -> i64 {
     assert_eq!(vm.run().is_ok(), true);
     vm.get(0).unwrap().to_owned()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2019, "2"),
+        }
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("5434663"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("4559"));
+    }
+}

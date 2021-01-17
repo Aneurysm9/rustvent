@@ -36,7 +36,23 @@ fn fuel(mass: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Solution;
+    use crate::{read_input, Solution};
+
+    fn new() -> Runner {
+        Runner {
+            input: read_input(2019, "1"),
+        }
+    }
+
+    #[test]
+    fn real_a() {
+        assert_eq!(new().run_a(), String::from("3405637"));
+    }
+
+    #[test]
+    fn real_b() {
+        assert_eq!(new().run_b(), String::from("5105597"));
+    }
 
     #[test]
     fn mass_calc() {
