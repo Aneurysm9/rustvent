@@ -12,7 +12,7 @@ impl crate::Solution for Runner {
     fn run_b(&self) -> String {
         for noun in 0..=99 {
             for verb in 0..=99 {
-                if 19690720 == exec(&self.input, noun, verb) {
+                if 19_690_720 == exec(&self.input, noun, verb) {
                     return (100 * noun + verb).to_string();
                 }
             }
