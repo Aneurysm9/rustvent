@@ -8,7 +8,7 @@ impl crate::Solution for Runner {
     fn run_a(&self) -> String {
         let wires = self.read_input();
         let origin = Point { x: 0, y: 0 };
-        let mut min = i64::MAX;
+        let mut min = std::i64::MAX;
         for intersection in wires.0[0].intersection(&wires.0[1]) {
             let dist = origin.distance(intersection);
             if dist < min && dist > 0 {
@@ -21,7 +21,7 @@ impl crate::Solution for Runner {
 
     fn run_b(&self) -> String {
         let wires = self.read_input();
-        let mut min = usize::MAX;
+        let mut min = std::usize::MAX;
         for intersection in wires.0[0].intersection(&wires.0[1]) {
             let dist =
                 wires.1[0].get(intersection).unwrap() + wires.1[1].get(intersection).unwrap();
