@@ -20,6 +20,10 @@ pub enum Opcode {
     Mul(i64, i64, i64),
     Input(i64),
     Output(i64),
+    JumpIfTrue(i64, i64),
+    JumpIfFalse(i64, i64),
+    LessThan(i64, i64, i64),
+    Equals(i64, i64, i64),
     Halt,
 }
 
@@ -30,6 +34,10 @@ impl Opcode {
             Opcode::Mul(_, _, _) => 4,
             Opcode::Input(_) => 2,
             Opcode::Output(_) => 2,
+            Opcode::JumpIfTrue(_, _) => 0,
+            Opcode::JumpIfFalse(_, _) => 0,
+            Opcode::LessThan(_, _, _) => 4,
+            Opcode::Equals(_, _, _) => 4,
             Opcode::Halt => 1,
         }
     }
@@ -89,6 +97,36 @@ impl Vm {
                 self.output.push(a);
                 Ok(())
             }
+            Opcode::JumpIfTrue(a, b) => {
+                if a != 0 {
+                    self.pc = b as usize;
+                } else {
+                    self.pc += 3;
+                }
+                Ok(())
+            }
+            Opcode::JumpIfFalse(a, b) => {
+                if a == 0 {
+                    self.pc = b as usize;
+                } else {
+                    self.pc += 3;
+                }
+                Ok(())
+            }
+            Opcode::LessThan(a, b, c) => {
+                if a < b {
+                    self.set(c as usize, 1)
+                } else {
+                    self.set(c as usize, 0)
+                }
+            }
+            Opcode::Equals(a, b, c) => {
+                if a == b {
+                    self.set(c as usize, 1)
+                } else {
+                    self.set(c as usize, 0)
+                }
+            }
             Opcode::Halt => Ok(()),
         }
     }
@@ -112,6 +150,24 @@ impl Vm {
                         3 => Ok(Opcode::Input(*self.memory.get(self.pc + 1).unwrap())),
                         4 => Ok(Opcode::Output(
                             *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                        )),
+                        5 => Ok(Opcode::JumpIfTrue(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                            *self.get(self.pc + 2, modes.get(1)).unwrap(),
+                        )),
+                        6 => Ok(Opcode::JumpIfFalse(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                            *self.get(self.pc + 2, modes.get(1)).unwrap(),
+                        )),
+                        7 => Ok(Opcode::LessThan(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                            *self.get(self.pc + 2, modes.get(1)).unwrap(),
+                            *self.memory.get(self.pc + 3).unwrap(),
+                        )),
+                        8 => Ok(Opcode::Equals(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                            *self.get(self.pc + 2, modes.get(1)).unwrap(),
+                            *self.memory.get(self.pc + 3).unwrap(),
                         )),
                         99 => Ok(Opcode::Halt),
                         _ => Err(VmRuntimeError(self.pc)),
@@ -294,5 +350,77 @@ mod tests {
         let mut vm = Vm::new("1002,4,3,4,33");
         assert_eq!(vm.run().is_ok(), true);
         assert_eq!(vm.get(4, Some(&ParameterMode::Immediate)), Some(&99));
+    }
+
+    #[test]
+    fn eq_8() {
+        for prog in &["3,9,8,9,10,9,4,9,99,-1,8", "3,3,1108,-1,8,3,4,3,99"] {
+            let mut vm = Vm::new(prog);
+            vm.input(8);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(1));
+
+            let mut vm = Vm::new(prog);
+            vm.input(9);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(0));
+        }
+    }
+
+    #[test]
+    fn lt_8() {
+        for prog in &["3,9,7,9,10,9,4,9,99,-1,8", "3,3,1107,-1,8,3,4,3,99"] {
+            let mut vm = Vm::new(prog);
+            vm.input(7);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(1));
+
+            let mut vm = Vm::new(prog);
+            vm.input(8);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(0));
+
+            let mut vm = Vm::new(prog);
+            vm.input(9);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(0));
+        }
+    }
+
+    #[test]
+    fn input_zero() {
+        for prog in &[
+            "3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9",
+            "3,3,1105,-1,9,1101,0,0,12,4,12,99,1",
+        ] {
+            let mut vm = Vm::new(prog);
+            vm.input(0);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(0));
+
+            let mut vm = Vm::new(prog);
+            vm.input(4);
+            assert_eq!(vm.run().is_ok(), true);
+            assert_eq!(vm.pop_output(), Some(1));
+        }
+    }
+
+    #[test]
+    fn cond_test() {
+        let prog = "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99";
+        let mut vm = Vm::new(prog);
+        vm.input(3);
+        assert_eq!(vm.run().is_ok(), true);
+        assert_eq!(vm.pop_output(), Some(999));
+
+        let mut vm = Vm::new(prog);
+        vm.input(8);
+        assert_eq!(vm.run().is_ok(), true);
+        assert_eq!(vm.pop_output(), Some(1000));
+
+        let mut vm = Vm::new(prog);
+        vm.input(9);
+        assert_eq!(vm.run().is_ok(), true);
+        assert_eq!(vm.pop_output(), Some(1001));
     }
 }

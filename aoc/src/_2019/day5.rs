@@ -18,7 +18,10 @@ impl crate::Solution for Runner {
     }
 
     fn run_b(&self) -> String {
-        String::from("Not Implemented")
+        let mut vm = intcode::Vm::new(&self.input);
+        vm.input(5);
+        assert_eq!(vm.run().is_ok(), true);
+        vm.pop_output().unwrap().to_string()
     }
 }
 
@@ -40,6 +43,6 @@ mod tests {
 
     #[test]
     fn real_b() {
-        assert_eq!(new().run_b(), String::from(""));
+        assert_eq!(new().run_b(), String::from("3176266"));
     }
 }
