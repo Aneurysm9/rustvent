@@ -152,6 +152,14 @@ impl Vm {
     pub fn input(&mut self, input: i64) {
         self.input = Some(input)
     }
+
+    pub fn peek_output(&self) -> Option<&i64> {
+        self.output.get(0)
+    }
+
+    pub fn pop_output(&mut self) -> Option<i64> {
+        self.output.pop()
+    }
 }
 
 #[derive(Debug, Clone)]
