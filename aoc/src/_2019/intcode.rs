@@ -35,6 +35,12 @@ impl Opcode {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParameterMode {
+    Position,
+    Immediate,
+}
+
 impl Vm {
     pub fn new(input: &str) -> Vm {
         Vm {
@@ -80,7 +86,7 @@ impl Vm {
                 }
             }
             Opcode::Output(a) => {
-                self.output.push(*self.get(a as usize).unwrap());
+                self.output.push(a);
                 Ok(())
             }
             Opcode::Halt => Ok(()),
@@ -88,26 +94,55 @@ impl Vm {
     }
 
     fn next_opcode(&self) -> Result<Opcode, VmRuntimeError> {
-        match self.get(self.pc) {
-            Some(1) => Ok(Opcode::Add(
-                *self.memory.get_pos(self.pc + 1).unwrap(),
-                *self.memory.get_pos(self.pc + 2).unwrap(),
-                *self.get(self.pc + 3).unwrap(),
-            )),
-            Some(2) => Ok(Opcode::Mul(
-                *self.memory.get_pos(self.pc + 1).unwrap(),
-                *self.memory.get_pos(self.pc + 2).unwrap(),
-                *self.get(self.pc + 3).unwrap(),
-            )),
-            Some(3) => Ok(Opcode::Input(*self.memory.get(self.pc + 1).unwrap())),
-            Some(4) => Ok(Opcode::Output(*self.memory.get(self.pc + 1).unwrap())),
-            Some(99) => Ok(Opcode::Halt),
+        match self.memory.get(self.pc) {
+            Some(raw) => {
+                let code = raw % 100;
+                if let Some(modes) = self.get_modes(raw / 100) {
+                    match code {
+                        1 => Ok(Opcode::Add(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                            *self.get(self.pc + 2, modes.get(1)).unwrap(),
+                            *self.memory.get(self.pc + 3).unwrap(),
+                        )),
+                        2 => Ok(Opcode::Mul(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                            *self.get(self.pc + 2, modes.get(1)).unwrap(),
+                            *self.memory.get(self.pc + 3).unwrap(),
+                        )),
+                        3 => Ok(Opcode::Input(*self.memory.get(self.pc + 1).unwrap())),
+                        4 => Ok(Opcode::Output(
+                            *self.get(self.pc + 1, modes.get(0)).unwrap(),
+                        )),
+                        99 => Ok(Opcode::Halt),
+                        _ => Err(VmRuntimeError(self.pc)),
+                    }
+                } else {
+                    Err(VmRuntimeError(self.pc))
+                }
+            }
             _ => Err(VmRuntimeError(self.pc)),
         }
     }
 
-    pub fn get(&self, addr: usize) -> Option<&i64> {
-        self.memory.get(addr)
+    fn get_modes(&self, modespec: i64) -> Option<Vec<ParameterMode>> {
+        let mut modes = Vec::new();
+        let mut tmp = modespec;
+        while tmp > 0 {
+            match tmp % 10 {
+                0 => modes.push(ParameterMode::Position),
+                1 => modes.push(ParameterMode::Immediate),
+                _ => return None,
+            }
+            tmp /= 10;
+        }
+        Some(modes)
+    }
+
+    pub fn get(&self, addr: usize, mode: Option<&ParameterMode>) -> Option<&i64> {
+        match mode.unwrap_or(&ParameterMode::Position) {
+            ParameterMode::Position => self.memory.get_pos(addr),
+            ParameterMode::Immediate => self.memory.get(addr),
+        }
     }
 
     pub fn set(&mut self, addr: usize, val: i64) -> Result<(), Box<dyn Error>> {
@@ -230,22 +265,26 @@ mod tests {
     fn vm_run() {
         let mut vm = Vm::new("1,9,10,3,2,3,11,0,99,30,40,50");
         assert_eq!(vm.run().is_ok(), true);
-        assert_eq!(vm.get(3), Some(&70));
+        assert_eq!(vm.get(3, Some(&ParameterMode::Immediate)), Some(&70));
 
         let mut vm = Vm::new("1,0,0,0,99");
         assert_eq!(vm.run().is_ok(), true);
-        assert_eq!(vm.get(0), Some(&2));
+        assert_eq!(vm.get(0, Some(&ParameterMode::Immediate)), Some(&2));
 
         let mut vm = Vm::new("2,3,0,3,99");
         assert_eq!(vm.run().is_ok(), true);
-        assert_eq!(vm.get(3), Some(&6));
+        assert_eq!(vm.get(3, Some(&ParameterMode::Immediate)), Some(&6));
 
         let mut vm = Vm::new("2,4,4,5,99,0");
         assert_eq!(vm.run().is_ok(), true);
-        assert_eq!(vm.get(5), Some(&9801));
+        assert_eq!(vm.get(5, Some(&ParameterMode::Immediate)), Some(&9801));
 
         let mut vm = Vm::new("1,1,1,4,99,5,6,0,99");
         assert_eq!(vm.run().is_ok(), true);
-        assert_eq!(vm.get(0), Some(&30));
+        assert_eq!(vm.get(0, Some(&ParameterMode::Immediate)), Some(&30));
+
+        let mut vm = Vm::new("1002,4,3,4,33");
+        assert_eq!(vm.run().is_ok(), true);
+        assert_eq!(vm.get(4, Some(&ParameterMode::Immediate)), Some(&99));
     }
 }

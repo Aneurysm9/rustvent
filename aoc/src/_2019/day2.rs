@@ -26,7 +26,9 @@ fn exec(input: &str, noun: i64, verb: i64) -> i64 {
     assert_eq!(vm.set(1, noun).is_ok(), true);
     assert_eq!(vm.set(2, verb).is_ok(), true);
     assert_eq!(vm.run().is_ok(), true);
-    vm.get(0).unwrap().to_owned()
+    vm.get(0, Some(&intcode::ParameterMode::Immediate))
+        .unwrap()
+        .to_owned()
 }
 
 #[cfg(test)]
