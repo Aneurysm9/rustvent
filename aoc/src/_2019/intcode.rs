@@ -1,9 +1,12 @@
+use std::error::Error;
 use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Vm {
     memory: Memory,
     pc: usize,
+    input: Option<i64>,
+    output: Vec<i64>,
 }
 
 #[derive(Debug, Clone)]
@@ -15,6 +18,8 @@ struct Memory {
 pub enum Opcode {
     Add(i64, i64, i64),
     Mul(i64, i64, i64),
+    Input(i64),
+    Output(i64),
     Halt,
 }
 
@@ -23,6 +28,8 @@ impl Opcode {
         match self {
             Opcode::Add(_, _, _) => 4,
             Opcode::Mul(_, _, _) => 4,
+            Opcode::Input(_) => 2,
+            Opcode::Output(_) => 2,
             Opcode::Halt => 1,
         }
     }
@@ -39,29 +46,43 @@ impl Vm {
                     .collect(),
             ),
             pc: 0,
+            input: None,
+            output: Vec::new(),
         }
     }
 
-    pub fn run(&mut self) -> Result<(), VmRuntimeError> {
+    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
         while self.pc < self.memory.len() {
             match self.next_opcode() {
                 Ok(Opcode::Halt) => return Ok(()),
                 Ok(op) => {
-                    if self.execute(op).is_err() {
-                        return Err(VmRuntimeError(self.pc));
+                    if let Err(e) = self.execute(op) {
+                        return Err(e);
                     }
                     self.pc += op.len();
                 }
-                Err(e) => return Err(e),
+                Err(e) => return Err(e.into()),
             };
         }
         Ok(())
     }
 
-    fn execute(&mut self, op: Opcode) -> Result<(), MemSetError> {
+    fn execute(&mut self, op: Opcode) -> Result<(), Box<dyn Error>> {
         match op {
             Opcode::Add(a, b, c) => self.set(c as usize, a + b),
             Opcode::Mul(a, b, c) => self.set(c as usize, a * b),
+            Opcode::Input(a) => {
+                if let Some(val) = self.input {
+                    self.input = None;
+                    self.set(a as usize, val)
+                } else {
+                    Err(InputRequired.into())
+                }
+            }
+            Opcode::Output(a) => {
+                self.output.push(*self.get(a as usize).unwrap());
+                Ok(())
+            }
             Opcode::Halt => Ok(()),
         }
     }
@@ -78,6 +99,8 @@ impl Vm {
                 *self.memory.get_pos(self.pc + 2).unwrap(),
                 *self.get(self.pc + 3).unwrap(),
             )),
+            Some(3) => Ok(Opcode::Input(*self.memory.get(self.pc + 1).unwrap())),
+            Some(4) => Ok(Opcode::Output(*self.memory.get(self.pc + 1).unwrap())),
             Some(99) => Ok(Opcode::Halt),
             _ => Err(VmRuntimeError(self.pc)),
         }
@@ -87,8 +110,12 @@ impl Vm {
         self.memory.get(addr)
     }
 
-    pub fn set(&mut self, addr: usize, val: i64) -> Result<(), MemSetError> {
+    pub fn set(&mut self, addr: usize, val: i64) -> Result<(), Box<dyn Error>> {
         self.memory.set(addr, val)
+    }
+
+    pub fn input(&mut self, input: i64) {
+        self.input = Some(input)
     }
 }
 
@@ -104,6 +131,19 @@ impl fmt::Display for VmRuntimeError {
         )
     }
 }
+
+impl Error for VmRuntimeError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InputRequired;
+
+impl fmt::Display for InputRequired {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Input is required")
+    }
+}
+
+impl Error for InputRequired {}
 
 impl Memory {
     fn new(mem: Vec<i64>) -> Memory {
@@ -121,9 +161,9 @@ impl Memory {
         self.mem.get(addr)
     }
 
-    fn set(&mut self, addr: usize, val: i64) -> Result<(), MemSetError> {
+    fn set(&mut self, addr: usize, val: i64) -> Result<(), Box<dyn Error>> {
         if addr > self.mem.len() {
-            return Err(MemSetError);
+            return Err(MemSetError.into());
         }
 
         self.mem[addr] = val;
@@ -144,6 +184,8 @@ impl fmt::Display for MemSetError {
     }
 }
 
+impl Error for MemSetError {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,13 +205,25 @@ mod tests {
     fn memory_write() {
         let mut m = Memory::new(vec![2, 10, 20, 30]);
         assert_eq!(m.get(3), Some(&30));
-        if let Err(e) = m.set(3, 33) {
-            panic!(e);
+        if m.set(3, 33).is_err() {
+            panic!("Failed to set memory");
         }
         assert_eq!(m.get(3), Some(&33));
         if m.set(99, 99).is_ok() {
             panic!("Unexpected Ok writing to invalid memory address");
         }
+    }
+
+    #[test]
+    fn io() {
+        let mut vm = Vm::new("3,0,4,0,99");
+        if vm.run().err().unwrap().downcast::<InputRequired>().is_err() {
+            assert_eq!(true, false);
+        }
+        vm.input(10);
+        assert_eq!(vm.pc, 0);
+        assert_eq!(vm.run().is_ok(), true);
+        assert_eq!(vm.output[0], 10);
     }
 
     #[test]
