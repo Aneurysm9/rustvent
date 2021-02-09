@@ -1,12 +1,12 @@
-use std::error::Error;
 use std::fmt;
+use std::{collections::VecDeque, error::Error};
 
 #[derive(Debug, Clone)]
 pub struct Vm {
     memory: Memory,
     pc: usize,
-    input: Option<i64>,
-    output: Vec<i64>,
+    input: VecDeque<i64>,
+    output: VecDeque<i64>,
 }
 
 #[derive(Debug, Clone)]
@@ -60,8 +60,8 @@ impl Vm {
                     .collect(),
             ),
             pc: 0,
-            input: None,
-            output: Vec::new(),
+            input: VecDeque::new(),
+            output: VecDeque::new(),
         }
     }
 
@@ -86,15 +86,14 @@ impl Vm {
             Opcode::Add(a, b, c) => self.set(c as usize, a + b),
             Opcode::Mul(a, b, c) => self.set(c as usize, a * b),
             Opcode::Input(a) => {
-                if let Some(val) = self.input {
-                    self.input = None;
+                if let Some(val) = self.input.pop_front() {
                     self.set(a as usize, val)
                 } else {
                     Err(InputRequired.into())
                 }
             }
             Opcode::Output(a) => {
-                self.output.push(a);
+                self.output.push_back(a);
                 Ok(())
             }
             Opcode::JumpIfTrue(a, b) => {
@@ -206,7 +205,7 @@ impl Vm {
     }
 
     pub fn input(&mut self, input: i64) {
-        self.input = Some(input)
+        self.input.push_back(input)
     }
 
     pub fn peek_output(&self) -> Option<&i64> {
@@ -214,7 +213,7 @@ impl Vm {
     }
 
     pub fn pop_output(&mut self) -> Option<i64> {
-        self.output.pop()
+        self.output.pop_front()
     }
 }
 
